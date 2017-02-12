@@ -1,0 +1,14 @@
+{
+  "name": "CommonCode",
+  "version": "1.0.0",
+  "description": "CommonCode",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Viktor Kis",
+  "license": "",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bluebird": "^3.4.1",
+    "mongoose": "^4.5.3"
+  }
+}

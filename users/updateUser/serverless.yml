@@ -1,0 +1,46 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: updateUser
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: dev
+  cfLogs: true
+  region: eu-west-1
+  memorySize: 256 # optional, default is 1024
+  timeout: 10 # optional, default is 6
+
+# you can add packaging information here
+package:
+    include:
+      - ../lib/**
+
+functions:
+    updateUser:
+        handler: index.main
+        cfLogs: true
+        environment:
+            MONGO_URL: mongodb://admin:root_admin@ds149489.mlab.com:49489/serverless
+        events:
+          - http:
+              path: user/{id}
+              method: put
+              cors:
+                origins:
+                  - '*'
+
