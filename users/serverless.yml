@@ -45,7 +45,7 @@ functions:
               - lib/**
               - updateUser/**
         environment:
-            MONGO_URL: mongodb://admin:root_admin@ds149489.mlab.com:49489/serverless
+            MONGO_URL: *****
         events:
             - http:
                 path: user/{id}
@@ -61,7 +61,7 @@ functions:
               - lib/**
               - getUser/**
         environment:
-            MONGO_URL: mongodb://admin:root_admin@ds149489.mlab.com:49489/serverless
+            MONGO_URL: *****
         events:
             - http:
                 path: user/{id}
@@ -78,7 +78,7 @@ functions:
               - lib/**
               - listUsers/**
         environment:
-            MONGO_URL: mongodb://admin:root_admin@ds149489.mlab.com:49489/serverless
+            MONGO_URL: *****
         events:
             - http:
                 path: users
@@ -95,7 +95,7 @@ functions:
               - lib/**
               - createUser/**
         environment:
-            MONGO_URL: mongodb://admin:root_admin@ds149489.mlab.com:49489/serverless
+            MONGO_URL: *****
         events:
             - http:
                 path: user
@@ -112,7 +112,7 @@ functions:
               - lib/**
               - deleteUser/**
         environment:
-            MONGO_URL: mongodb://admin:root_admin@ds149489.mlab.com:49489/serverless
+            MONGO_URL: *****
         events:
             - http:
                 path: user/{id}
