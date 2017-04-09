@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: deleteUser
+service: users
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -31,7 +31,7 @@ package:
       - ../lib/**
 
 functions:
-    deleteUser:
+    delete:
         handler: index.main
         cfLogs: true
         environment:

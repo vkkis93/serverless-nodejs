@@ -1,3 +1,4 @@
 module.exports = {
-    aaaa: { http_code: 400, status: 'refModel.err.not_found' , message: 'Reference model not found' },
-}
+    userNotFound: { statusCode: 400, status: 'user.err.not_found' , message: 'User not found' },
+    missedId: { statusCode: 400, status: 'id.err.not_found' , message: 'Missed userId ' }
+};

@@ -1,6 +1,6 @@
 'use strict';
 const Joi = require('joi'),
-    db = require('./lib/db');
+    db = require('../lib/db');
 module.exports.main = (event, context, callback) => {
     context.callbackWaitsForEmptyEventLoop = false;
     const data = JSON.parse(event.body);
@@ -8,7 +8,7 @@ module.exports.main = (event, context, callback) => {
         db.connect(process.env.MONGO_URL);
         const userObj = new db.user(data);
         return userObj.save();
-    }).then(() => {
+    }).then((user) => {
         db.disconnect();
         const response = {
             statusCode: 200,
