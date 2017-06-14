@@ -1,0 +1,13 @@
+{
+  "name": "users-crud",
+  "version": "1.0.0",
+  "scripts": {},
+  "keywords": [
+    "serverless", "serverless-xample", "api-gateway", "mock"
+  ],
+  "author": "viktor.kis <vkkis1993@gmail.com>",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "joi": "^10.2.2"
+  }
+}

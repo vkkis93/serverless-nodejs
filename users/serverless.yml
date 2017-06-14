@@ -1,40 +1,30 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
 service: users
 
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
+custom:
+  stage: "${opt:stage, self:provider.stage}"
+
+
 provider:
   name: aws
   runtime: nodejs4.3
   stage: dev
   cfLogs: true
   region: eu-west-1
-  memorySize: 256 # optional, default is 1024
-  timeout: 10 # optional, default is 6
+  memorySize: 256
+  timeout: 10
+  environment: ${file(environment.yml)}
+  # or if you have variables for different stages in one file you can load in this way {file(./environment_stages):${self:custom.stage}}
+
 
 package:
   individually: true
   exclude:
+     - lib/**
      - getUser/**
      - deleteUser/**
      - createUser/**
      - updateUser/**
      - listUsers/**
-
-# you can add packaging information here
 
 functions:
     update:
@@ -44,15 +34,54 @@ functions:
             include:
               - lib/**
               - updateUser/**
-        environment:
-            MONGO_URL: *****
         events:
             - http:
                 path: user/{id}
                 method: put
-                cors:
-                  origins:
-                    - '*'
+                integration: lambda
+                authorizer:
+                   name: isAuthenticated
+                   resultTtlInSeconds: 0
+                   identitySource: method.request.header.Authorization
+                request:
+                   parameters: #Method Request [HTTP REQUEST HEADERS]
+                     headers:
+                       Authorization: true
+                   template: #Integration Request [Body Mapping Templates ]
+                       application/json: "{\"user\":\"$context.authorizer.principalId\"}"
+
+                response:
+                   headers: #Integration Response [Header Mappings
+                      Access-Control-Allow-Origin: "'*'"
+                      Access-Control-Allow-Methods: "'PUT, OPTIONS'"
+                      Access-Control-Allow-Headers: "'Content-Type, Authorization, Cache-Control, X-Requested-With, If-Modified-Since'"
+                   statusCodes:
+                      200:
+                          pattern: ".*\"status\":200.*"
+                          template:
+                             application/json: ""
+                      400:
+                          pattern: ".*\"status\":400.*"
+                          template: $input.path("$.errorMessage")
+                      500:
+                          pattern: ".*\"status\":500.*"
+                          template: $input.path("$.errorMessage")
+            - http: #Integration request with type MOCK
+               path: user/{id}
+               method: OPTIONS
+               integration: mock
+               cors:
+                   origins:
+                     - '*'
+                   methods:
+                      - PUT
+                      - OPTIONS
+               request:
+                   template:
+                        application/json: "{ \"statusCode\": 200 }"
+               response:
+                    template:
+                         application/json: "{ \"statusCode\": 200 }"
     get:
         handler: getUser/index.main
         cfLogs: true
@@ -60,15 +89,26 @@ functions:
             include:
               - lib/**
               - getUser/**
-        environment:
-            MONGO_URL: *****
         events:
-            - http:
+             - http:
                 path: user/{id}
                 method: get
-                cors:
-                  origins:
-                    - '*'
+             - http:
+                 path: user/{id}
+                 method: OPTIONS
+                 integration: mock
+                 cors:
+                     origins:
+                       - '*'
+                     methods:
+                        - GET
+                        - OPTIONS
+                 request:
+                     template:
+                          application/json: "{ \"statusCode\": 200 }"
+                 response:
+                      template:
+                           application/json: "{ \"statusCode\": 200 }"
 
     list:
         handler: listUsers/index.main
@@ -77,8 +117,6 @@ functions:
             include:
               - lib/**
               - listUsers/**
-        environment:
-            MONGO_URL: *****
         events:
             - http:
                 path: users
@@ -86,6 +124,22 @@ functions:
                 cors:
                   origins:
                     - '*'
+            - http:
+                path: users
+                method: OPTIONS
+                integration: mock
+                cors:
+                    origins:
+                      - '*'
+                    methods:
+                       - GET
+                       - OPTIONS
+                request:
+                    template:
+                         application/json: "{ \"statusCode\": 200 }"
+                response:
+                     template:
+                          application/json: "{ \"statusCode\": 200 }"
 
     create:
         handler: createUser/index.main
@@ -94,15 +148,54 @@ functions:
             include:
               - lib/**
               - createUser/**
-        environment:
-            MONGO_URL: *****
         events:
             - http:
                 path: user
                 method: post
+                integration: lambda
+                authorizer:
+                   name: isAuthenticated
+                   resultTtlInSeconds: 0
+                   identitySource: method.request.header.Authorization
+                request:
+                   parameters:
+                     headers:
+                       Authorization: true
+                   template:
+                       application/json: "{\"user\":\"$context.authorizer.principalId\"}"
+
+                response:
+                   headers:
+                      Access-Control-Allow-Origin: "'*'"
+                      Access-Control-Allow-Methods: "'POST, OPTIONS'"
+                      Access-Control-Allow-Headers: "'Content-Type, Authorization, Cache-Control, X-Requested-With, If-Modified-Since'"
+                   statusCodes:
+                      200:
+                          pattern: ".*\"status\":200.*"
+                          template:
+                             application/json: ""
+                      400:
+                          pattern: ".*\"status\":400.*"
+                          template: $input.path("$.errorMessage")
+                      500:
+                          pattern: ".*\"status\":500.*"
+                          template: $input.path("$.errorMessage")
+            - http:
+                path: user
+                method: OPTIONS
+                integration: mock
                 cors:
-                  origins:
-                    - '*'
+                    origins:
+                      - '*'
+                    methods:
+                       - POST
+                       - OPTIONS
+                request:
+                    template:
+                         application/json: "{ \"statusCode\": 200 }"
+                response:
+                     template:
+                          application/json: "{ \"statusCode\": 200 }"
 
     delete:
         handler: deleteUser/index.main
@@ -111,12 +204,52 @@ functions:
             include:
               - lib/**
               - deleteUser/**
-        environment:
-            MONGO_URL: *****
         events:
             - http:
                 path: user/{id}
                 method: delete
+                integration: lambda
+                authorizer:
+                   name: isAuthenticated
+                   resultTtlInSeconds: 0
+                   identitySource: method.request.header.Authorization
+                request:
+                   parameters:
+                     headers:
+                       Authorization: true
+                   template:
+                       application/json: "{\"user\":\"$context.authorizer.principalId\"}"
+
+                response:
+                   headers:
+                      Access-Control-Allow-Origin: "'*'"
+                      Access-Control-Allow-Methods: "'DELETE, OPTIONS'"
+                      Access-Control-Allow-Headers: "'Content-Type, Authorization, Cache-Control, X-Requested-With, If-Modified-Since'"
+                   statusCodes:
+                      200:
+                          pattern: ".*\"status\":200.*"
+                          template:
+                             application/json: ""
+                      400:
+                          pattern: ".*\"status\":400.*"
+                          template: $input.path("$.errorMessage")
+                      500:
+                          pattern: ".*\"status\":500.*"
+                          template: $input.path("$.errorMessage")
+
+            - http:
+                path: user/{id}
+                method: OPTIONS
+                integration: mock
                 cors:
-                  origins:
-                    - '*'
+                    origins:
+                      - '*'
+                    methods:
+                       - DELETE
+                       - OPTIONS
+                request:
+                    template:
+                         application/json: "{ \"statusCode\": 200 }"
+                response:
+                     template:
+                          application/json: "{ \"statusCode\": 200 }"
