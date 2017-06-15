@@ -1,1 +1,1 @@
-# This example demonstrates how to use AWS Lambdas + API Gateway
+# This example demonstrates how to use AWS Lambda + API Gateway
